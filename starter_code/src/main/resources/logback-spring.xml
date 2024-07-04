@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- Console Appender for local debugging -->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Splunk HTTP Event Collector Appender -->
+    <appender name="splunk" class="com.splunk.logging.HttpEventCollectorLogbackAppender">
+        <url>https://127.0.0.1:8081/services/collector/api/user/create</url>
+        <token>a5ab59c8-c090-4538-b37d-93a737b53d02</token>
+        <source>spring-boot-application</source>
+        <sourcetype>_json</sourcetype>
+        <index>main</index>
+    </appender>
+
+    <!-- Root logger configuration -->
+    <root level="info">
+        <appender-ref ref="console" />
+        <appender-ref ref="splunk" />
+    </root>
+</configuration>
