@@ -2,8 +2,8 @@ package com.example.demo.controllers;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +21,7 @@ import com.example.demo.model.persistence.repositories.UserRepository;
 @RequestMapping("/api/order")
 public class OrderController {
 
-	private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
+	private static final Logger log = LogManager.getLogger(OrderController.class);
 
 	@Autowired
 	private UserRepository userRepository;
@@ -31,32 +31,32 @@ public class OrderController {
 
 	@PostMapping("/submit/{username}")
 	public ResponseEntity<UserOrder> submit(@PathVariable String username) {
-		logger.info("Submit order request for user: {}", username);
+		log.info("Submitting order for user: {}", username);
 		User user = userRepository.findByUsername(username);
 		if (user == null) {
-			logger.error("Submit order request failed: User {} not found", username);
+			log.warn("Order submission failed: User with username {} not found", username);
 			return ResponseEntity.notFound().build();
 		}
 		try {
 			UserOrder order = UserOrder.createFromCart(user.getCart());
 			orderRepository.save(order);
-			logger.info("Order submitted successfully for user: {}", username);
+			log.info("Order for user {} submitted successfully", username);
 			return ResponseEntity.ok(order);
 		} catch (Exception e) {
-			logger.error("Submit order request failed for user: {} due to exception: {}", username, e.getMessage());
+			log.error("Exception occurred while submitting order for user {}: {}", username, e.getMessage());
 			throw e;
 		}
 	}
 
 	@GetMapping("/history/{username}")
 	public ResponseEntity<List<UserOrder>> getOrdersForUser(@PathVariable String username) {
-		logger.info("Fetching order history for user: {}", username);
+		log.info("Fetching order history for user: {}", username);
 		User user = userRepository.findByUsername(username);
 		if (user == null) {
-			logger.error("Fetch order history failed: User {} not found", username);
+			log.warn("Order history fetch failed: User with username {} not found", username);
 			return ResponseEntity.notFound().build();
 		}
+		log.info("Order history for user {} fetched successfully", username);
 		return ResponseEntity.ok(orderRepository.findByUser(user));
 	}
-
 }
